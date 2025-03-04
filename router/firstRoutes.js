@@ -1,11 +1,11 @@
 import express, { response } from "express";
 import firstModel from "../Models/firstModel.js";
 import { passwordGenerator } from "../Helper/randomPassword.js";
-import { sendEmail } from "../mailtrap/email.js";
 import uploads from "../cloudnaryMulter/cloudnary.js";
 import adminLoginModel from "../Models/adminLoginModel.js";
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken'
+import { sendEmailBrevo } from "../mailtrap/email.js";
 // ==
 dotenv.config(); // Load .env variables
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -63,11 +63,12 @@ firstRoute.post("/add", async (req, res) => {
       // Save data to the database
       await firstModel.create(newData);
       // Send email with the password
-      await sendEmail(email, password);
+      await sendEmailBrevo(email, password);
+      
       // Send success response
       res
         .status(201)
-        .send({ message: "Data saved, password sent to mailtrap. " });
+        .send({ message: "Data saved, password sent to Your Email. " });
     } else {
       res.status(400).send({ status: 400, message: "Email already exists" });
     }

@@ -1,6 +1,6 @@
 import { sender, transporter } from "./mailtrap.js";
 
-export const sendEmail = async(email,password)=>{
+ export const sendEmailBrevo = async(email,password)=>{
     await transporter.sendMail({
      from: `${sender.name} <${sender.email}>`, 
      to: email,
@@ -9,4 +9,5 @@ export const sendEmail = async(email,password)=>{
      <h1>Your Password ${password}</h1>
      `,
    });
- }
+ }  
+

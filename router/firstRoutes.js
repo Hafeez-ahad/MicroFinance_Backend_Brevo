@@ -3,12 +3,14 @@ import firstModel from "../Models/firstModel.js";
 import { passwordGenerator } from "../Helper/randomPassword.js";
 import uploads from "../cloudnaryMulter/cloudnary.js";
 import adminLoginModel from "../Models/adminLoginModel.js";
-import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken'
+import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import { sendEmailBrevo } from "../mailtrap/email.js";
+import { v2 as cloudinary } from "cloudinary";
 // ==
 dotenv.config(); // Load .env variables
 const SECRET_KEY = process.env.SECRET_KEY;
+
 // ==
 const firstRoute = express.Router();
 
@@ -24,31 +26,6 @@ firstRoute.get("/", async (req, res) => {
     res.status(404).send({ error });
   }
 });
-// delete-all route
-firstRoute.delete("/delete-all", async (req, res) => {
-  try {
-    // Delete all documents in the collection
-    const deleteResult = await firstModel.deleteMany({});
-
-    // Check if any documents were deleted
-    if (deleteResult.deletedCount > 0) {
-      res.status(200).send({
-        status: 200,
-        message: "All data deleted successfully",
-        deletedCount: deleteResult.deletedCount,
-      });
-    } else {
-      res.status(404).send({ status: 404, message: "No data found to delete" });
-    }
-  } catch (error) {
-    // Handle errors
-    console.error(error);
-    res
-      .status(500)
-      .send({ status: 500, error: "An error occurred while deleting data" });
-  }
-});
-
 // add data route
 firstRoute.post("/add", async (req, res) => {
   try {
@@ -64,7 +41,7 @@ firstRoute.post("/add", async (req, res) => {
       await firstModel.create(newData);
       // Send email with the password
       await sendEmailBrevo(email, password);
-      
+
       // Send success response
       res
         .status(201)
@@ -100,13 +77,11 @@ firstRoute.post("/newpass", async (req, res) => {
     findPassword.password = newPassword;
     await findPassword.save();
 
-    return res
-      .status(200)
-      .send({
-        status: 200,
-        message: "Your Password is changed",
-        id: findPassword._id,
-      });
+    return res.status(200).send({
+      status: 200,
+      message: "Your Password is changed",
+      id: findPassword._id,
+    });
   } catch (error) {
     return res.status(500).send({ status: 500, message: error.message });
   }
@@ -243,31 +218,27 @@ firstRoute.post("/adminReject", async (req, res) => {
     res.status(404).send({ message: error.message });
   }
 });
-// ADMIN LOGIN WITH JWT TOKEN 
+// ADMIN LOGIN WITH JWT TOKEN
 firstRoute.post("/adminlogin", async (req, res) => {
-  
-
-
   try {
     const { email, password } = req.body;
     console.log(email, password);
-    
+
     const findEmail = await adminLoginModel.findOne({ email });
     console.log(findEmail);
 
-    if (findEmail  && (password == findEmail.password)) {
-      // **JWT Token Generate Karo**
+    if (findEmail && password == findEmail.password) {
+      // JWT Token Generate
       const token = jwt.sign(
-        { id: findEmail._id, email: findEmail.email }, // Payload
-        SECRET_KEY, // Secret key
+        { id: findEmail._id, email: findEmail.email },
+        SECRET_KEY, 
         { expiresIn: "1h" } // Token expiration
       );
 
       return res.status(201).send({
         status: 201,
         message: "Responce Sucess",
-        token, // **Token Send Karna Response Mein**
-        
+        token, 
       });
     } else {
       return res.status(404).send({
@@ -279,7 +250,79 @@ firstRoute.post("/adminlogin", async (req, res) => {
     return res.status(500).send({ status: 500, message: e.message });
   }
 });
+// DELETE REJECTED
+firstRoute.post("/deleteRejected", async (req, res) => {
+  try {
+    const { password } = req.body;
 
+    // Get saved password from environment variable
+    const savedPassword = process.env.rejectPassword;
+
+    // Check if the provided password matches the saved one
+    if (password === savedPassword) {
+      // find Rejected
+      const findRejected = await firstModel.find({ status: "Rejected" });
+      if (findRejected.length > 0) {
+        // DELETING DATA FROM MONGODB
+        const rejected = await firstModel.deleteMany({ status: "Rejected" });
+
+        // DELETING IMG FROM CLOUDINARY
+        const pictureId = findRejected.map((item) => item.picture);
+        console.log(pictureId)
+       if(pictureId.length>0){
+        pictureId.forEach(async(item)=>{
+          try{
+            cloudinary.uploader.destroy(item)
+          }
+          catch(e){
+            res.status(404).send({stauts:404,message:e.message})
+          }
+        })
+       }
+          
+
+        return res.status(200).send({
+          status: 200,
+          message: "Deleted All Rejected",
+          data: pictureId,
+        });
+      } else {
+        return res
+          .status(404)
+          .send({ status: 404, message: "No Rejected Status Found" });
+      }
+    } else {
+      return res.status(404).send({ status: 404, message: "Invalid Password" });
+    }
+  } catch (e) {
+    return res.status(500).send({ status: 500, message: e.message });
+  }
+});
+// delete-all route
+firstRoute.delete("/delete-all", async (req, res) => {
+  try {
+    // Delete all documents in the collection
+    const deleteResult = await firstModel.deleteMany({});
+    // await cloudinary.uploader.destroy({})
+
+    // Check if any documents were deleted
+    if (deleteResult.deletedCount > 0) {
+      res.status(200).send({
+        status: 200,
+        message: "All data deleted successfully",
+        deletedCount: deleteResult.deletedCount,
+      });
+    } else {
+      res.status(404).send({ status: 404, message: "No data found to delete" });
+    }
+  } catch (error) {
+    // Handle errors
+    console.error(error);
+    res
+      .status(500)
+      .send({ status: 500, error: "An error occurred while deleting data" });
+  }
+});
 
 // firstRoute.post('/adminget' ,async (req,res)=>{
 // const {email,password}  = req.body;
@@ -289,6 +332,7 @@ firstRoute.post("/adminlogin", async (req, res) => {
 //       .status(200)
 //       .send({ status: 200, data: saveData, message: "Responce Success" });
 //   })
+
 // firstRoute.get('/adminget' ,async (req,res)=>{
 //   const get = await adminLoginModel.find();
 //   res

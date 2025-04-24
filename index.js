@@ -60,7 +60,7 @@ dotenv.config();
 
 // Correct CORS middleware
 app.use(cors({
-  origin: ['http://localhost:5174', 'https://your-netlify-site.netlify.app'],
+  origin: ['http://localhost:5173/'],
   methods: ['GET', 'POST', 'OPTIONS'], // Allow OPTIONS method for preflight
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true, // Allow cookies if needed

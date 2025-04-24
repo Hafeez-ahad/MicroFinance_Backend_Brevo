@@ -58,13 +58,16 @@ const app = express();
 // Middleware
 dotenv.config();
 
+app.use(cors())
+
+
 // Correct CORS middleware
-app.use(cors({
-  origin: ['http://localhost:5173/'],
-  methods: ['GET', 'POST', 'OPTIONS'], // Allow OPTIONS method for preflight
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Allow cookies if needed
-}));
+// app.use(cors({
+//   origin: ['http://localhost:5173/'],
+//   methods: ['GET', 'POST', 'OPTIONS'], // Allow OPTIONS method for preflight
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+//   credentials: true, // Allow cookies if needed
+// }));
 
 app.use(express.json());
 

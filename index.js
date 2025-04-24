@@ -89,4 +89,6 @@ app.get('/', (req, res) => {
 app.use('/proceed', firstRoute);
 
 // Since this is Vercel, remove the app.listen() because it's not needed in serverless
-export default app;
+app.listen(PORT , ()=>{
+    console.log(`welcome ${PORT} is connected`)
+})

@@ -8,14 +8,14 @@ import mongoose from 'mongoose';
 const app = express();
 // middleware 
 dotenv.config();
-app.use(cors())
+// app.use(cors())
 
-// app.use(cors({
-//     origin: ['http://localhost:5174', 'https://your-netlify-site.netlify.app'],
-//     methods: ['GET', 'POST', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     credentials: true
-//   }));
+
+app.use(cors({
+    origin: "http://localhost:5174", // or "*" for testing (but not in production!)
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true // if you’re sending cookies/auth headers
+  }));
   
 
 app.use(express.json())

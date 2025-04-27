@@ -11,21 +11,23 @@ dotenv.config();
 
 // Allow multiple origins
 const allowedOrigins = [
-    'http://localhost:5173',
-    'https://reliable-longma-c24cf8.netlify.app', // Netlify
-    'https://micro-finance-front-end.vercel.app/' // Vercel (replace with your actual frontend URL)
-  ];
-  
-  app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true
-  }));
+  'http://localhost:5173', // Local frontend
+  'https://spiffy-paprenjak-b033b4.netlify.app/', // Netlify
+  'https://micro-finance-front-end.vercel.app' // Vercel
+];
+
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
   
 
 app.use(express.json())

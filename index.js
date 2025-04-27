@@ -8,19 +8,24 @@ import mongoose from 'mongoose';
 const app = express();
 // middleware 
 dotenv.config();
-// app.use(cors())
 
-
-// Middleware order matters - CORS should be before your routes
-app.use(cors({
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Add OPTIONS
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true // If you're using cookies/auth tokens
-  }));
+// Allow multiple origins
+const allowedOrigins = [
+    'http://localhost:5173',
+    'https://reliable-longma-c24cf8.netlify.app', // Netlify
+    'https://micro-finance-front-end.vercel.app/' // Vercel (replace with your actual frontend URL)
+  ];
   
-  // Handle OPTIONS requests for preflight
-  app.options('*', cors()); // Enable preflight for all routes
+  app.use(cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  }));
   
 
 app.use(express.json())

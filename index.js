@@ -13,7 +13,7 @@ dotenv.config();
 const allowedOrigins = [
   'http://localhost:5173', // Local frontend
   'https://spiffy-paprenjak-b033b4.netlify.app/', // Netlify
-  'https://micro-finance-front-end.vercel.app' // Vercel
+ 
 ];
 
 

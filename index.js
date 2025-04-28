@@ -12,7 +12,7 @@ dotenv.config();
 // Allow multiple origins
 const allowedOrigins = [
   'http://localhost:5173', // Local frontend
-  'https://spiffy-paprenjak-b033b4.netlify.app/', // Netlify
+  'https://spiffy-paprenjak-b033b4.netlify.app', // Netlify
  
 ];
 
